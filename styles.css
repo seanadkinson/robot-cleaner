@@ -1,0 +1,27 @@
+
+
+.room {
+    border-spacing: 0;
+    border-collapse: collapse;
+    border: 5px solid tan;
+    display: table;
+    position: relative;
+}
+
+.room-row {
+    display: table-row;
+}
+
+.room-tile {
+    display: table-cell;
+    border: 1px solid #999;
+    text-align: center;
+}
+
+img {
+    vertical-align: middle;
+}
+
+.trash, .robot {
+    position: absolute;
+}
