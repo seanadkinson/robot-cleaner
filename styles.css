@@ -22,6 +22,11 @@ img {
     vertical-align: middle;
 }
 
-.trash, .robot {
+.trash {
     position: absolute;
+    z-index: 1;
+}
+.robot {
+    position: absolute;
+    z-index: 2;
 }
