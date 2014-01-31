@@ -1,4 +1,8 @@
 
+body {
+    padding: 10px;
+    overflow: auto;
+}
 
 .room {
     border-spacing: 0;
@@ -6,6 +10,8 @@
     border: 5px solid tan;
     display: table;
     position: relative;
+    table-layout: fixed;
+    width: 374px;
 }
 
 .room-row {
@@ -16,6 +22,8 @@
     display: table-cell;
     border: 1px solid #999;
     text-align: center;
+    width: 36px;
+    height: 36px;
 }
 
 img {

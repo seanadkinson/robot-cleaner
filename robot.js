@@ -1,8 +1,4 @@
 
-$(function() {
-    room.create();
-});
-
 var currentAnimation;
 
 var room = {
@@ -23,25 +19,22 @@ var room = {
         for (var x=0; x<this.dim; x++) {
             var row = $('<div class="room-row"></div>').appendTo(this.$el);
             for (var y=0; y<this.dim; y++) {
-                $('<div class="room-tile"></div>')
-                    .width(this.size)
-                    .height(this.size)
-                    .appendTo(row);
+                $('<div class="room-tile"></div>').appendTo(row);
             }
         }
     },
 
     placeRobot: function() {
-        robot.el = $('<img class="robot" src="img/roomba.png"/>')
+        robot.el = $('<img class="robot" src="http://seanadkinson.com/i/roomba.png"/>')
             .toTile(0, 9)
             .animateRotate(90)
             .appendTo(this.$el);
     },
 
     generateTrash: function() {
-        $('<img class="trash" src="img/trash.png"/>').toTile(2, 2).appendTo(this.$el);
-        $('<img class="trash" src="img/trash.png"/>').toTile(7, 4).appendTo(this.$el);
-        $('<img class="trash" src="img/trash.png"/>').toTile(8, 9).appendTo(this.$el);
+        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(2, 2).appendTo(this.$el);
+        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(7, 4).appendTo(this.$el);
+        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(8, 9).appendTo(this.$el);
     }
 };
 
