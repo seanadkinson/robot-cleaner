@@ -1,7 +1,8 @@
 
 var currentAnimation;
 
-var actions = 0;
+var moves = 0;
+var turns = 0;
 
 var room = {
 
@@ -52,17 +53,35 @@ var robot = {
     maxMoves: 1000,
 
     turnRight: function() {
-        actions++;
+        turns++;
         this.el.animateRotate(90)
     },
 
     turnLeft: function() {
-        actions++;
+        turns++;
         this.el.animateRotate(-90)
     },
 
     move: function(n) {
-        actions++;
+        moves++;
+        var next = this.getNextMove(n);
+
+        if (next.invalid) {
+            this.el.effect({
+                effect: 'shake',
+                direction: (next.dir == 'l' || next.dir == 'r' ? 'left' : 'up'),
+                distance: 3,
+                times: 1,
+                easing: 'easeInCirc'
+            });
+        }
+        else {
+            this.el.toTile(next.x, next.y);
+            this.checkClean();
+        }
+    },
+
+    getNextMove: function(n) {
         var x = this.el.data('x');
         var y = this.el.data('y');
         var dir = this.el.data('dir');
@@ -80,37 +99,49 @@ var robot = {
             x += n;
         }
 
-//        console.log("Move " + dir + " to " + x + ", " + y);
+        var invalid = (x < 0 || y < 0 || x >= room.dim || y >= room.dim)
 
-        if (x < 0 || y < 0 || x >= room.dim || y >= room.dim) {
-            this.el.effect({
-                effect: 'shake',
-                direction: (dir == 'l' || dir == 'r' ? 'left' : 'up'),
-                distance: 3,
-                times: 1,
-                easing: 'easeInCirc'
-            });
-        }
-        else {
-            this.el.toTile(x, y);
-            this.checkClean();
-        }
+        return {x: x, y: y, dir: dir, invalid: invalid};
     },
 
     checkClean: function() {
         var x = this.el.data('x');
         var y = this.el.data('y');
 
-        var takeOut = $('.trash').filter(function(i, t) {
+        var remainingTrash = $('.trash:not(.gone)')
+        var remaining = remainingTrash.length;
+
+        var takeOut = remainingTrash.filter(function(i, t) {
             t = $(t);
             return t.data('x') == x && t.data('y') == y;
-        });
-        $.when(currentAnimation).done(function() {
-            takeOut.fadeOut();
-            if (room.isClean()) {
-                alert("All clean!");
-            }
-        });
+        }).addClass('gone');
+        var tagged = takeOut.length;
+
+        if (takeOut.length) {
+            $.when(currentAnimation).done(function() {
+                takeOut.fadeOut({
+                    complete: function() {
+                        takeOut.remove();
+                        if (room.isClean()) {
+                            $('<div>The room is clean, nice work!' +
+                                '<ul><li>Moves: ' + moves + '</li><li>Turns: ' + turns + '</li>' +
+                                '<li>Total: ' + (moves + turns) + '</li></ul>' +
+                                'Is that the best you can do?</div>')
+                                .dialog({
+                                    autoOpen: true,
+                                    title: 'Congratulations!  ',
+                                    modal: true
+                                });
+                        }
+                    }
+                });
+            });
+        }
+
+        console.log("Remaining: " + remaining + ", Tagged: " + tagged);
+        if (remaining == tagged) {
+            throw 'OK';
+        }
     },
 
     msgs: [
@@ -164,6 +195,13 @@ function move(n) {
     return robot.respond();
 }
 
+function spaceAhead() {
+    return !robot.getNextMove(1).invalid;
+}
+
+function wallAhead() {
+    return robot.getNextMove(1).invalid;
+}
 
 $.fn.animateRotate = function(angle, complete) {
     var from = this.data('degs') || 0;
