@@ -31,9 +31,9 @@ var room = {
     },
 
     generateTrash: function() {
-        $('<div class="trash"></div>').toTile(2, 2).appendTo(this.$el);
-        $('<div class="trash"></div>').toTile(7, 4).appendTo(this.$el);
-        $('<div class="trash"></div>').toTile(8, 9).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(2, 2, null, true).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(7, 4, null, true).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(8, 9, null, true).appendTo(this.$el);
     }
 };
 
@@ -169,16 +169,21 @@ $.fn.animateRotate = function(angle, complete) {
     });
 };
 
-$.fn.toTile = function(x, y, complete) {
+$.fn.toTile = function(x, y, complete, noanimate) {
     this.data('x', x);
     this.data('y', y);
     var coords = $('.room-row:eq(' + y + ') .room-tile:eq(' + x + ')').position();
-
-    var d = currentAnimation = $.Deferred();
-    return this.animate({
+    var updates = {
         top: coords.top + 4,
         left: coords.left + 4
-    }, {
+    };
+
+    if (noanimate === true) {
+        return this.css(updates);
+    }
+
+    var d = currentAnimation = $.Deferred();
+    return this.animate(updates, {
         done: function (){
             d.resolve();
             complete && complete();
