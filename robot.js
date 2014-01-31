@@ -1,12 +1,14 @@
 
 var currentAnimation;
 
+var actions = 0;
+
 var room = {
 
     dim: 10,
     trash: {},
 
-    create: function() {
+    create: function(n) {
         console.clear();
         this.$el = $('<div class="room"><div class="room-inner"></div></div>')
             .appendTo('body');
@@ -26,15 +28,17 @@ var room = {
 
     placeRobot: function() {
         robot.el = $('<div class="robot"></div>')
-            .toTile(0, 9)
             .animateRotate(90)
-            .appendTo(this.$el);
+            .hide()
+            .toTile(0, 9)
+            .appendTo(this.$el)
+            .fadeIn();
     },
 
     generateTrash: function() {
-        $('<div class="trash"></div>').toTile(2, 2, null, true).appendTo(this.$el);
-        $('<div class="trash"></div>').toTile(7, 4, null, true).appendTo(this.$el);
-        $('<div class="trash"></div>').toTile(8, 9, null, true).appendTo(this.$el);
+        $('<div class="trash"></div>').hide().toTile(2, 2).appendTo(this.$el).fadeIn();
+        $('<div class="trash"></div>').hide().toTile(7, 4).appendTo(this.$el).fadeIn();
+        $('<div class="trash"></div>').hide().toTile(8, 9).appendTo(this.$el).fadeIn();
     },
 
     isClean: function() {
@@ -48,14 +52,17 @@ var robot = {
     maxMoves: 1000,
 
     turnRight: function() {
+        actions++;
         this.el.animateRotate(90)
     },
 
     turnLeft: function() {
+        actions++;
         this.el.animateRotate(-90)
     },
 
     move: function(n) {
+        actions++;
         var x = this.el.data('x');
         var y = this.el.data('y');
         var dir = this.el.data('dir');
@@ -76,7 +83,13 @@ var robot = {
 //        console.log("Move " + dir + " to " + x + ", " + y);
 
         if (x < 0 || y < 0 || x >= room.dim || y >= room.dim) {
-            alert("Out of range!");
+            this.el.effect({
+                effect: 'shake',
+                direction: (dir == 'l' || dir == 'r' ? 'left' : 'up'),
+                distance: 3,
+                times: 1,
+                easing: 'easeInCirc'
+            });
         }
         else {
             this.el.toTile(x, y);
@@ -94,6 +107,9 @@ var robot = {
         });
         $.when(currentAnimation).done(function() {
             takeOut.fadeOut();
+            if (room.isClean()) {
+                alert("All clean!");
+            }
         });
     },
 
@@ -116,6 +132,9 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function createRoom(n) {
+    room.create(n);
+}
 
 function backward(n) {
     move(-1 * (n || 1));
@@ -181,7 +200,7 @@ $.fn.animateRotate = function(angle, complete) {
     });
 };
 
-$.fn.toTile = function(x, y, complete, noanimate) {
+$.fn.toTile = function(x, y, complete) {
     this.data('x', x);
     this.data('y', y);
     var coords = $('.room-row:eq(' + y + ') .room-tile:eq(' + x + ')').position();
@@ -194,10 +213,6 @@ $.fn.toTile = function(x, y, complete, noanimate) {
 
     if (this.queue().length > robot.maxMoves) {
         throw "OK";
-    }
-
-    if (noanimate === true) {
-        return this.css(updates);
     }
 
     var d = currentAnimation = $.Deferred();
