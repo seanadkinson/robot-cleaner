@@ -7,6 +7,7 @@ var room = {
     trash: {},
 
     create: function() {
+        console.clear();
         this.$el = $('<div class="room"><div class="room-inner"></div></div>')
             .appendTo('body');
         this.drawTiles();
@@ -34,11 +35,17 @@ var room = {
         $('<div class="trash"></div>').toTile(2, 2, null, true).appendTo(this.$el);
         $('<div class="trash"></div>').toTile(7, 4, null, true).appendTo(this.$el);
         $('<div class="trash"></div>').toTile(8, 9, null, true).appendTo(this.$el);
+    },
+
+    isClean: function() {
+        return $('.trash').length === 0;
     }
 };
 
 var robot = {
-    el:null,
+
+    el: null,
+    maxMoves: 1000,
 
     turnRight: function() {
         this.el.animateRotate(90)
@@ -66,6 +73,8 @@ var robot = {
             x += n;
         }
 
+//        console.log("Move " + dir + " to " + x + ", " + y);
+
         if (x < 0 || y < 0 || x >= room.dim || y >= room.dim) {
             alert("Out of range!");
         }
@@ -78,7 +87,6 @@ var robot = {
     checkClean: function() {
         var x = this.el.data('x');
         var y = this.el.data('y');
-//        console.log("Trash at " + x + ", " + y + "?");
 
         var takeOut = $('.trash').filter(function(i, t) {
             t = $(t);
@@ -143,7 +151,9 @@ $.fn.animateRotate = function(angle, complete) {
     var to = from + angle;
     this.data('degs', to);
 
-    var n = (to + 360) % 360;
+    var n = (to % 360);
+    if (n < 0) n+=360;
+
     if (n == 0) {
         this.data('dir', 'u');
     }
@@ -156,6 +166,8 @@ $.fn.animateRotate = function(angle, complete) {
     if (n == 90) {
         this.data('dir', 'r');
     }
+
+//    console.log("Dir: " + this.data('dir') + ", To: " + to + ", N: " + n);
 
     return this.animate({
         deg: to
@@ -177,6 +189,12 @@ $.fn.toTile = function(x, y, complete, noanimate) {
         top: coords.top + 4,
         left: coords.left + 4
     };
+
+//    console.log("Queue: " + this.queue().length);
+
+    if (this.queue().length > robot.maxMoves) {
+        throw "OK";
+    }
 
     if (noanimate === true) {
         return this.css(updates);
