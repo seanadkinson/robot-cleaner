@@ -5,13 +5,16 @@ body {
 }
 
 .room {
+    position: relative;
+    border: 5px solid tan;
+    display: inline-block;
+}
+
+.room-inner {
     border-spacing: 0;
     border-collapse: collapse;
-    border: 5px solid tan;
     display: table;
-    position: relative;
     table-layout: fixed;
-    width: 374px;
 }
 
 .room-row {

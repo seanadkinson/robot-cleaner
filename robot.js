@@ -4,11 +4,10 @@ var currentAnimation;
 var room = {
 
     dim: 10,
-    size: 36,
     trash: {},
 
     create: function() {
-        this.$el = $('<div class="room"></div>')
+        this.$el = $('<div class="room"><div class="room-inner"></div></div>')
             .appendTo('body');
         this.drawTiles();
         this.placeRobot();
@@ -88,6 +87,20 @@ var robot = {
         $.when(currentAnimation).done(function() {
             takeOut.fadeOut();
         });
+    },
+
+    msgs: [
+        "Yes, sir",
+        "Right away, sir",
+        "Consider it done",
+        "Okay",
+        "On it",
+        "Alright",
+        "Your wish is my command"
+    ],
+
+    respond: function() {
+        return this.msgs[getRandomInt(0, this.msgs.length)];
     }
 }
 
@@ -98,18 +111,22 @@ function getRandomInt(min, max) {
 
 function backward(n) {
     move(-1 * (n || 1));
+    return robot.respond();
 }
 
 function forward(n) {
     move(n || 1);
+    return robot.respond();
 }
 
 function turnRight() {
     robot.turnRight();
+    return robot.respond();
 }
 
 function turnLeft() {
     robot.turnLeft();
+    return robot.respond();
 }
 
 function move(n) {
@@ -117,6 +134,7 @@ function move(n) {
     for (var i=0; i<Math.abs(n); i++) {
         robot.move(d);
     }
+    return robot.respond();
 }
 
 
@@ -154,10 +172,12 @@ $.fn.animateRotate = function(angle, complete) {
 $.fn.toTile = function(x, y, complete) {
     this.data('x', x);
     this.data('y', y);
+    var coords = $('.room-row:eq(' + y + ') .room-tile:eq(' + x + ')').position();
+
     var d = currentAnimation = $.Deferred();
     return this.animate({
-        top: 7+y*(room.size+1),
-        left: 7+x*(room.size+1)
+        top: coords.top + 4,
+        left: coords.left + 4
     }, {
         done: function (){
             d.resolve();
