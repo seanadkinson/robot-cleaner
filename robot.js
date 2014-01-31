@@ -8,14 +8,16 @@ var room = {
 
     dim: 10,
     trash: {},
+    level: 1,
 
-    create: function(n) {
+    create: function(level) {
+        this.level = level || 1;
         console.clear();
         this.$el = $('<div class="room"><div class="room-inner"></div></div>')
             .appendTo('body');
         this.drawTiles();
         this.placeRobot();
-        this.generateTrash();
+        this.generateObstacles();
     },
 
     drawTiles: function() {
@@ -36,10 +38,76 @@ var room = {
             .fadeIn();
     },
 
-    generateTrash: function() {
-        $('<div class="trash"></div>').hide().toTile(2, 2).appendTo(this.$el).fadeIn();
-        $('<div class="trash"></div>').hide().toTile(7, 4).appendTo(this.$el).fadeIn();
-        $('<div class="trash"></div>').hide().toTile(8, 9).appendTo(this.$el).fadeIn();
+    generateObstacles: function(n) {
+        if (this.level == 1) {
+            this.addTrash(2, 2);
+            this.addTrash(7, 4);
+            this.addTrash(8, 9);
+        }
+        if (this.level == 2) {
+            this.addTrash(1, 6);
+            this.addTrash(9, 9);
+            this.addTrash(2, 1);
+            this.addTrash(7, 4);
+            this.addXWall(7, [5, 6]);
+            this.addYWall(2, [5, 6, 7, 8, 9]);
+        }
+        if (this.level == 3) {
+            this.addTrash(0, 1);
+            this.addTrash(9, 4);
+            this.addTrash(8, 9);
+            this.addTrash(5, 7);
+            this.addTrash(2, 2);
+            this.addXWall(1, [7, 8]);
+            this.addYWall(7, [0, 9]);
+            this.addXWall(6, [5, 6, 7, 8]);
+            this.addWall(4, 6, 'e');
+            this.addWall(2, 5, 'e');
+            this.addXWall(4, [0, 1, 7, 8, 9]);
+        }
+    },
+
+    addTrash: function(x, y) {
+        $('<div class="trash"></div>').hide().toTile(x, y).appendTo(this.$el).fadeIn();
+    },
+
+    addXWall: function(y, not) {
+        for (var x=0; x<10; x++) {
+            if (not.indexOf(x) === -1) {
+                this.addWall(x, y, 's');
+            }
+        }
+    },
+
+    addYWall: function(x, not) {
+        for (var y=0; y<10; y++) {
+            if (not.indexOf(y) === -1) {
+                this.addWall(x, y, 'e');
+            }
+        }
+    },
+
+    addWall: function(x, y, d) {
+        if (d == 'n') {
+            this.tileAt(x, y).addClass('wall-n');
+            this.tileAt(x, y-1).addClass('wall-s');
+        }
+        if (d == 'e') {
+            this.tileAt(x, y).addClass('wall-e');
+            this.tileAt(x+1, y).addClass('wall-w');
+        }
+        if (d == 's') {
+            this.tileAt(x, y).addClass('wall-s');
+            this.tileAt(x, y+1).addClass('wall-n');
+        }
+        if (d == 'w') {
+            this.tileAt(x, y).addClass('wall-w');
+            this.tileAt(x-1, y).addClass('wall-e');
+        }
+    },
+
+    tileAt: function(x, y) {
+        return $('.room-row:eq(' + y + ') .room-tile:eq(' + x + ')');
     },
 
     isClean: function() {
@@ -86,20 +154,27 @@ var robot = {
         var y = this.el.data('y');
         var dir = this.el.data('dir');
 
+        var fromTile = room.tileAt(x, y);
+        var isWall = false;
+
         if (dir == 'u') {
             y -= n;
+            isWall = fromTile.hasClass('wall-' + (n > 0 ? 'n' : 's'));
         }
         if (dir == 'd') {
             y += n;
+            isWall = fromTile.hasClass('wall-' + (n > 0 ? 's' : 'n'));
         }
         if (dir == 'l') {
             x -= n;
+            isWall = fromTile.hasClass('wall-' + (n > 0 ? 'w' : 'e'));
         }
         if (dir == 'r') {
             x += n;
+            isWall = fromTile.hasClass('wall-' + (n > 0 ? 'e' : 'w'));
         }
 
-        var invalid = (x < 0 || y < 0 || x >= room.dim || y >= room.dim)
+        var invalid = isWall || (x < 0 || y < 0 || x >= room.dim || y >= room.dim)
 
         return {x: x, y: y, dir: dir, invalid: invalid};
     },
@@ -129,7 +204,7 @@ var robot = {
                                 'Is that the best you can do?</div>')
                                 .dialog({
                                     autoOpen: true,
-                                    title: 'Congratulations!  ',
+                                    title: 'Level ' + room.level + ' complete! ',
                                     modal: true
                                 });
                         }
@@ -138,7 +213,6 @@ var robot = {
             });
         }
 
-        console.log("Remaining: " + remaining + ", Tagged: " + tagged);
         if (remaining == tagged) {
             throw 'OK';
         }
@@ -188,6 +262,7 @@ function turnLeft() {
 }
 
 function move(n) {
+    console.log(n);
     var d = n < 0 ? -1 : 1;
     for (var i=0; i<Math.abs(n); i++) {
         robot.move(d);
@@ -241,7 +316,7 @@ $.fn.animateRotate = function(angle, complete) {
 $.fn.toTile = function(x, y, complete) {
     this.data('x', x);
     this.data('y', y);
-    var coords = $('.room-row:eq(' + y + ') .room-tile:eq(' + x + ')').position();
+    var coords = room.tileAt(x, y).position();
     var updates = {
         top: coords.top + 4,
         left: coords.left + 4

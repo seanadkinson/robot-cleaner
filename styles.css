@@ -26,9 +26,17 @@ body {
     display: table-cell;
     border: 1px solid #999;
     text-align: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
+
+.wall-n { border-top: 3px solid tan; }
+.wall-e { border-right: 3px solid tan; }
+.wall-s { border-bottom: 3px solid tan; }
+.wall-w { border-left: 3px solid tan; }
 
 img {
     vertical-align: middle;
