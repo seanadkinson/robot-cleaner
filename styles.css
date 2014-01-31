@@ -38,7 +38,7 @@ img {
     z-index: 1;
     width: 30px;
     height: 30px;
-    background: 0 0 url(./trash.png) transparent no-repeat;
+    background: 0 0 url(./trashbagicon.png) transparent no-repeat;
 }
 .robot {
     position: absolute;
