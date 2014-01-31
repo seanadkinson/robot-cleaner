@@ -15,6 +15,7 @@ body {
     border-collapse: collapse;
     display: table;
     table-layout: fixed;
+    width: 380px;
 }
 
 .room-row {
