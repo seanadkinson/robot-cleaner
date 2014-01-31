@@ -25,16 +25,16 @@ var room = {
     },
 
     placeRobot: function() {
-        robot.el = $('<img class="robot" src="http://seanadkinson.com/i/roomba.png"/>')
+        robot.el = $('<div class="robot"></div>')
             .toTile(0, 9)
             .animateRotate(90)
             .appendTo(this.$el);
     },
 
     generateTrash: function() {
-        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(2, 2).appendTo(this.$el);
-        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(7, 4).appendTo(this.$el);
-        $('<img class="trash" src="http://seanadkinson.com/i/trash.png"/>').toTile(8, 9).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(2, 2).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(7, 4).appendTo(this.$el);
+        $('<div class="trash"></div>').toTile(8, 9).appendTo(this.$el);
     }
 };
 
