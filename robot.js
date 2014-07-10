@@ -38,7 +38,7 @@ var room = {
             .fadeIn();
     },
 
-    generateObstacles: function(n) {
+    generateObstacles: function() {
         if (this.level == 1) {
             this.addTrash(2, 2);
             this.addTrash(7, 4);
